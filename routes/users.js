@@ -19,6 +19,23 @@ router.get('/', function(req, res, next) {
 router.post('/signup', function(req, res, next){
   console.log('user has hit the /USERS/SIGNUP endpoint');
   console.log(req.body);
+
+  var userFirstName = req.body.firstName;
+  var userLastName = req.body.lastName;
+  var username = req.body.userName;
+  var userEmail = req.body.email;
+  var userPassword = req.body.password;
+
+  knex('users')
+    .where('email', userEmail)
+    .then(function(response){
+      console.log(response);
+    })
+    .catch(function(err){
+      console.log(err);
+    });
+
+    res.send('endpoint has been reached');
 });
 
 
