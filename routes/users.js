@@ -30,6 +30,29 @@ router.post('/signup', function(req, res, next){
     .where('email', userEmail)
     .then(function(response){
       console.log(response);
+
+      if(response.length === 0){
+        knex('users')
+          .insert({
+            'first_name' : userFirstName,
+            'last_name' : userLastName,
+            'username' : username,
+            'password' : userPassword,
+            'email' : userEmail
+          })
+          .then(function(response){
+            console.log('User Has Been Placed In Database');
+            res.end();
+          })
+          .catch(function(err){
+            console.log(err);
+          });
+
+      } else {
+        console.log('User already exists in the database');
+        res.send('User already exists with this email');
+      }
+
     })
     .catch(function(err){
       console.log(err);
