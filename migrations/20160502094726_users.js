@@ -7,7 +7,6 @@ exports.up = function(knex, Promise) {
     table.string('username');
     table.string('password');
     table.string('email').unique();
-    table.string('token');
   });
 };
 

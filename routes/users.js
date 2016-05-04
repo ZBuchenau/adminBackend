@@ -8,7 +8,7 @@ var knex = require('../db/knex.js');
 //  INDEX
 //====================================================
 router.get('/', function(req, res, next) {
-  res.send('respond with a resource');
+  res.send('Waiting for User requests');
 });
 
 
@@ -33,6 +33,7 @@ router.post('/signup', function(req, res, next){
 
       if(response.length === 0){
         knex('users')
+          .returning('id')
           .insert({
             'first_name' : userFirstName,
             'last_name' : userLastName,
@@ -41,8 +42,14 @@ router.post('/signup', function(req, res, next){
             'email' : userEmail
           })
           .then(function(response){
-            console.log('User Has Been Placed In Database');
-            res.end();
+            console.log('User ' + response + ' Has Been Placed In Database' );
+            var myToken = jwt.sign({
+              id : response
+            }, process.env.JWT_SECRET);
+
+            console.log(myToken);
+
+            res.send(myToken);
           })
           .catch(function(err){
             console.log(err);
@@ -50,15 +57,13 @@ router.post('/signup', function(req, res, next){
 
       } else {
         console.log('User already exists in the database');
-        res.send('User already exists with this email');
+        res.end();
       }
 
     })
     .catch(function(err){
       console.log(err);
     });
-
-    res.send('endpoint has been reached');
 });
 
 

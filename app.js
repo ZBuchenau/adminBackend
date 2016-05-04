@@ -1,13 +1,13 @@
 var express = require('express');
 var dotenv = require('dotenv').config();
 var session = require('express-session');
-var jwt = require('express-jwt');
 var hh = require('http-https');
 var path = require('path');
 var favicon = require('serve-favicon');
 var logger = require('morgan');
 var cookieParser = require('cookie-parser');
 var bodyParser = require('body-parser');
+var expressJwt = require('express-jwt');
 var knex = require('./db/knex.js');
 
 var routes = require('./routes/index');
@@ -17,6 +17,13 @@ var cors = require('cors');
 var app = express();
 
 app.use(cors());
+
+app.use(expressJwt({
+  secret: process.env.JWT_SECRET
+})
+  .unless({
+    path : ['/', '/users/signup', '/users/login']
+  }));
 
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
