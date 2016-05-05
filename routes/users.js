@@ -3,6 +3,7 @@ var router = express.Router();
 var https = require('https');
 var jwt = require('jsonwebtoken');
 var knex = require('../db/knex.js');
+var bcrypt = require('bcrypt');
 
 //====================================================
 //  INDEX
@@ -20,11 +21,17 @@ router.post('/signup', function(req, res, next){
   console.log('user has hit the /USERS/SIGNUP endpoint');
   console.log(req.body);
 
+
+
   var userFirstName = req.body.firstName;
   var userLastName = req.body.lastName;
   var username = req.body.userName;
   var userEmail = req.body.email;
   var userPassword = req.body.password;
+
+  var saltRounds = 10;
+  var salt = bcrypt.genSaltSync(saltRounds);
+  var hash = bcrypt.hashSync(userPassword, salt);
 
   knex('users')
     .where('email', userEmail)
@@ -38,7 +45,7 @@ router.post('/signup', function(req, res, next){
             'first_name' : userFirstName,
             'last_name' : userLastName,
             'username' : username,
-            'password' : userPassword,
+            'password' : hash,
             'email' : userEmail
           })
           .then(function(response){
@@ -49,7 +56,9 @@ router.post('/signup', function(req, res, next){
 
             console.log(myToken);
 
-            res.send(myToken);
+            res.send({
+              token : myToken
+            });
           })
           .catch(function(err){
             console.log(err);
