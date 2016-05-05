@@ -22,7 +22,7 @@ app.use(expressJwt({
   secret: process.env.JWT_SECRET
 })
   .unless({
-    path : ['/', '/users/signup', '/users/login']
+    path : ['/', '/users', '/users/signup', '/users/login']
   }));
 
 // view engine setup

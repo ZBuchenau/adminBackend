@@ -6,10 +6,19 @@ var knex = require('../db/knex.js');
 var bcrypt = require('bcrypt');
 
 //====================================================
-//  INDEX
+//  USERS
 //====================================================
-router.get('/', function(req, res, next) {
-    console.log(req.body);
+router.post('/', function(req, res, next) {
+
+    var tokenVerified;
+    var tokenToVerify = req.body.token;
+
+    if(jwt.verify(tokenToVerify, process.env.JWT_SECRET)){
+      tokenVerified = true;
+    } else {
+      tokenVerified = false;
+    }
+    res.send(tokenVerified);
 });
 
 
@@ -119,7 +128,7 @@ router.post('/login', function(req, res, next) {
         user.token = myToken;
 
         console.log('all good up until here');
-
+        console.log(user);
         res.send(user);
 
       })
