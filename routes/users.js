@@ -5,6 +5,9 @@ var jwt = require('jsonwebtoken');
 var knex = require('../db/knex.js');
 var bcrypt = require('bcrypt');
 
+
+var authenticated = false;
+
 //====================================================
 //  USERS
 //====================================================
@@ -15,12 +18,23 @@ router.post('/', function(req, res, next) {
 
     if(jwt.verify(tokenToVerify, process.env.JWT_SECRET)){
       tokenVerified = true;
+      authenticated = true;
     } else {
       tokenVerified = false;
+      authenticated = false;
     }
     res.send(tokenVerified);
 });
 
+
+//====================================================
+//  AUTHENTICATE USER
+//====================================================
+router.get('/auth', function(req, res, next) {
+
+    res.send(authenticated);
+
+});
 
 
 //====================================================
