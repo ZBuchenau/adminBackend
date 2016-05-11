@@ -54,7 +54,6 @@ router.post('/auth', function(req, res, next) {
     var tokenId = tokenInfo.id;
     if(tokenInfo){
       knex('users')
-        .returning('user_state')
         .where('id', tokenId)
         .then(function(response){
           console.log(response);
@@ -65,10 +64,9 @@ router.post('/auth', function(req, res, next) {
             firstname: info.first_name,
             lastname: info.last_name,
             id: info.id,
-            userState: info.user_state,
             username: info.username
           };
-
+          console.log(userInfo);
           res.send(userInfo);
         });
     } else {
@@ -118,7 +116,7 @@ router.post('/signup', function(req, res, next) {
                         console.log('User ' + response + ' Has Been Placed In Database');
                         var myToken = jwt.sign({
                             id: response,
-                            expiresIn: 5
+                            expiresIn: "14d"
                         }, process.env.JWT_SECRET);
 
                         console.log(myToken);
@@ -175,7 +173,7 @@ router.post('/login', function(req, res, next) {
         .then(function(response) {
             var myToken = jwt.sign({
                 id: response.id,
-                expiresIn: 5
+                expiresIn: "14d"
             }, process.env.JWT_SECRET);
             var user = response;
             user.token = myToken;
