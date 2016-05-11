@@ -13,26 +13,69 @@ var authenticated = false;
 //====================================================
 router.post('/', function(req, res, next) {
 
-    var tokenVerified;
+    var userState;
     var tokenToVerify = req.body.token;
 
-    if(jwt.verify(tokenToVerify, process.env.JWT_SECRET)){
-      tokenVerified = true;
-      authenticated = true;
+    if (jwt.verify(tokenToVerify, process.env.JWT_SECRET)) {
+
+        tokenInfo = jwt.verify(tokenToVerify, process.env.JWT_SECRET).id[0];
+        //deposit user-state to the database
+        console.log(tokenInfo, 'tokenInfo');
+        knex('users')
+          .where('id', tokenInfo)
+          .update({'user_state': true})
+          .returning('id')
+          .then(function(response){
+            userState = response[0];
+            res.send(userState);
+          })
+          .catch(function(err){
+            console.log(err);
+          });
+
     } else {
-      tokenVerified = false;
-      authenticated = false;
+        userState = false;
+        res.send(userState);
     }
-    res.send(tokenVerified);
 });
 
 
 //====================================================
 //  AUTHENTICATE USER
 //====================================================
-router.get('/auth', function(req, res, next) {
+router.post('/auth', function(req, res, next) {
 
-    res.send(authenticated);
+    var authenticated;
+
+    console.log("REQ.BODY:", req.body);
+    var tokenToVerify = req.body.token;
+    tokenInfo = jwt.verify(tokenToVerify, process.env.JWT_SECRET);
+    console.log(tokenInfo);
+    var tokenId = tokenInfo.id;
+    if(tokenInfo){
+      knex('users')
+        .returning('user_state')
+        .where('id', tokenId)
+        .then(function(response){
+          console.log(response);
+          var info = response[0];
+
+          var userInfo = {
+            email: info.email,
+            firstname: info.first_name,
+            lastname: info.last_name,
+            id: info.id,
+            userState: info.user_state,
+            username: info.username
+          };
+
+          res.send(userInfo);
+        });
+    } else {
+      res.send(false);
+    }
+
+    // res.send(authenticated);
 
 });
 
@@ -74,7 +117,8 @@ router.post('/signup', function(req, res, next) {
                     .then(function(response) {
                         console.log('User ' + response + ' Has Been Placed In Database');
                         var myToken = jwt.sign({
-                            id: response
+                            id: response,
+                            expiresIn: 5
                         }, process.env.JWT_SECRET);
 
                         console.log(myToken);
@@ -89,7 +133,7 @@ router.post('/signup', function(req, res, next) {
 
             } else {
                 console.log('User already exists in the database');
-                res.end();
+                res.send(false);
             }
 
         })
@@ -111,44 +155,37 @@ router.post('/login', function(req, res, next) {
     var userPassword = req.body.password;
 
     knex('users')
-      .where({
-        'email' : userEmail,
-      })
-      .then(function(response){
-        var userInfo = response[0];
-
-        if(bcrypt.compareSync(userPassword, userInfo.password)){
-
-          userInfo = {
-            id: userInfo.id,
-            firstname: userInfo.first_name,
-            lastname: userInfo.last_name,
-            username: userInfo.username
-          };
-
-          return userInfo;
-
-        } else {
-          res.send(401, 'Wrong Email or Password');
-        }
-      })
-      .then(function(response){
-
-        var myToken = jwt.sign({
-            id: response.id
-        }, process.env.JWT_SECRET);
-
-        var user = response;
-        user.token = myToken;
-
-        console.log('all good up until here');
-        console.log(user);
-        res.send(user);
-
-      })
-      .catch(function(err){
-        console.log(err + 'ERROR');
-      });
+        .where({
+            'email': userEmail,
+        })
+        .then(function(response) {
+            var userInfo = response[0];
+            if (bcrypt.compareSync(userPassword, userInfo.password)) {
+                userInfo = {
+                    id: userInfo.id,
+                    firstname: userInfo.first_name,
+                    lastname: userInfo.last_name,
+                    username: userInfo.username
+                };
+                return userInfo;
+            } else {
+                res.send(401, 'Wrong Email or Password');
+            }
+        })
+        .then(function(response) {
+            var myToken = jwt.sign({
+                id: response.id,
+                expiresIn: 5
+            }, process.env.JWT_SECRET);
+            var user = response;
+            user.token = myToken;
+            console.log('all good up until here');
+            console.log(user);
+            res.send(user);
+        })
+        .catch(function(err) {
+            console.log(err + 'ERROR');
+        });
 
 
 
