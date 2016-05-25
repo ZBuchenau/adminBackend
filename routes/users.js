@@ -185,8 +185,36 @@ router.post('/login', function(req, res, next) {
             console.log(err + 'ERROR');
         });
 
+});
 
+router.post('/mediaPlans/clientInfo', function(req, res, next){
+  console.log(req.body);
+  res.send('(CLIENT INFO) SUBMISSION HAS HIT THE SERVER...');
+});
 
+router.post('/mediaPlans/ppcTactics', function(req, res, next){
+  console.log(req.body);
+  res.send('(PPC) TACTIC SUBMISSION HAS HIT THE SERVER...');
+});
+
+router.post('/mediaPlans/cpmTactics', function(req, res, next){
+  console.log(req.body);
+  res.send('(CPM) TACTIC SUBMISSION HAS HIT THE SERVER...');
+});
+
+router.post('/mediaPlans/listingTactics', function(req, res, next){
+  console.log(req.body);
+  res.send('(LISTING) TACTIC SUBMISSION HAS HIT THE SERVER...');
+});
+
+router.post('/mediaPlans/emailTactics', function(req, res, next){
+  console.log(req.body);
+  res.send('(EMAIL) TACTIC SUBMISSION HAS HIT THE SERVER...');
+});
+
+router.post('/mediaPlans/flatFeeTactics', function(req, res, next){
+  console.log(req.body);
+  res.send('(FLAT FEE) TACTIC SUBMISSION HAS HIT THE SERVER...');
 });
 
 module.exports = router;
