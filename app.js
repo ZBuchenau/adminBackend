@@ -12,7 +12,6 @@ var knex = require('./db/knex.js');
 
 var routes = require('./routes/index');
 var users = require('./routes/users');
-var tactics = require('./routes/tactics');
 
 var cors = require('cors');
 var app = express();
