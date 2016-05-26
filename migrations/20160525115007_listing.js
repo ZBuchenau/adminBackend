@@ -5,7 +5,7 @@ exports.up = function(knex, Promise) {
     table.integer('media_plan_id');
     table.string('provider_name');
     table.string('tactic_name');
-    table.decimal('monthly_spend', 2, 2);
+    table.decimal('monthly_spend');
   });
 };
 

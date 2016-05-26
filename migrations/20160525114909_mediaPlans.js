@@ -3,7 +3,7 @@ exports.up = function(knex, Promise) {
     table.increments('media_plan_id');
     table.integer('user_id');
     table.string('name');
-    table.decimal('monthly_budget', 2, 2);
+    table.decimal('monthly_budget');
     table.string('year');
   });
 };

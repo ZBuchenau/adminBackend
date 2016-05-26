@@ -47,16 +47,16 @@ router.post('/auth', function(req, res, next) {
 
     var authenticated;
 
-    console.log("REQ.BODY:", req.body);
+    // console.log("REQ.BODY:", req.body);
     var tokenToVerify = req.body.token;
     tokenInfo = jwt.verify(tokenToVerify, process.env.JWT_SECRET);
-    console.log(tokenInfo);
-    var tokenId = tokenInfo.id;
+    // console.log(tokenInfo);
+    var tokenId = tokenInfo.id[0];
     if(tokenInfo){
       knex('users')
         .where('id', tokenId)
         .then(function(response){
-          console.log(response);
+          // console.log(response);
           var info = response[0];
 
           var userInfo = {
@@ -66,7 +66,7 @@ router.post('/auth', function(req, res, next) {
             id: info.id,
             username: info.username
           };
-          console.log(userInfo);
+          // console.log(userInfo);
           res.send(userInfo);
         });
     } else {
@@ -83,7 +83,7 @@ router.post('/auth', function(req, res, next) {
 //====================================================
 router.post('/signup', function(req, res, next) {
     console.log('user has hit the /USERS/SIGNUP endpoint');
-    console.log(req.body);
+    // console.log(req.body);
 
 
 
@@ -100,7 +100,7 @@ router.post('/signup', function(req, res, next) {
     knex('users')
         .where('email', userEmail)
         .then(function(response) {
-            console.log(response);
+            // console.log(response);
 
             if (response.length === 0) {
                 knex('users')
@@ -119,7 +119,7 @@ router.post('/signup', function(req, res, next) {
                             expiresIn: "14d"
                         }, process.env.JWT_SECRET);
 
-                        console.log(myToken);
+                        // console.log(myToken);
 
                         res.send({
                             token: myToken
@@ -147,7 +147,7 @@ router.post('/signup', function(req, res, next) {
 //====================================================
 router.post('/login', function(req, res, next) {
     console.log('user has hit the /USERS/LOGIN endpoint');
-    console.log(req.body);
+    // console.log(req.body);
 
     var userEmail = req.body.email;
     var userPassword = req.body.password;
@@ -177,8 +177,8 @@ router.post('/login', function(req, res, next) {
             }, process.env.JWT_SECRET);
             var user = response;
             user.token = myToken;
-            console.log('all good up until here');
-            console.log(user);
+            // console.log('all good up until here');
+            // console.log(user);
             res.send(user);
         })
         .catch(function(err) {
@@ -187,9 +187,50 @@ router.post('/login', function(req, res, next) {
 
 });
 
+//submits and returns whatever object is submitted to the database
+var knexInsert = function(tableName, obj){
+  return knex(tableName)
+    .returning('*')
+    .insert(obj);
+};
+
+router.get('/mediaPlans/plans', function(req, res, next){
+  console.log("USER IS # ", req.user.id[0]);
+  var userId = req.user.id[0];
+  knex('media_plan')
+  .where('user_id', userId)
+  .select('*')
+  .then(function(response){
+    res.send(response);
+  })
+  .catch(function(err){
+    console.log(err);
+  });
+});
+
 router.post('/mediaPlans/clientInfo', function(req, res, next){
-  console.log(req.body);
-  res.send('(CLIENT INFO) SUBMISSION HAS HIT THE SERVER...');
+  var mediaPlan = req.body.data.clientName;
+  var budget = req.body.data.clientMonthlyBudget;
+  var year = req.body.data.year;
+  var userId = req.user.id[0];
+
+  var info = {
+      'user_id': userId,
+      'name': mediaPlan,
+      'monthly_budget': budget,
+      'year': year
+    };
+
+
+    knexInsert('media_plan', info)
+      .then(function(response){
+        console.log(response, "THIS IS THE RESPONSE!!!!");
+        res.send(response);
+      })
+      .catch(function(error){
+        console.log(error);
+      });
+
 });
 
 router.post('/mediaPlans/ppcTactics', function(req, res, next){
