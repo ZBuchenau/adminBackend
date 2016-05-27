@@ -299,7 +299,21 @@ router.post('/mediaPlans/allTactics', function(req, res, next) {
   });
 });
 
-
+router.post('/mediaPlans/titles', function(req, res, next) {
+  console.log("TITLES HAS BEEN HIT...");
+  // console.log(req.body);
+  var userId = req.user.id[0];
+  var mediaPlan = req.body.mediaPlanId;
+  knex('media_plan')
+    .where({
+      'media_plan_id': mediaPlan,
+      'user_id': userId
+    }).select('*')
+    .then(function(response){
+      console.log(response[0]);
+      res.send(response[0]);
+    });
+});
 
 
 router.post('/mediaPlans/ppcTactics', function(req, res, next) {
