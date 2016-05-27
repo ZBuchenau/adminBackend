@@ -262,41 +262,29 @@ router.post('/mediaPlans/allTactics', function(req, res, next) {
   var mediaPlanNumber = req.body.mediaPlanId;
   var userId = req.user.id[0];
   var mediaPlanObject = [];
-  var tables = ['ppc', 'cpm', 'listings', 'email', 'flat_fee'];
 
-
-  knexSelectTactics('ppc', {
+  var info = {
     'media_plan_id': mediaPlanNumber,
     'user_id': userId
-  }).then(function(response) {
+  };
+
+  knexSelectTactics('ppc', info).then(function(response) {
     console.log("#################", response);
     mediaPlanObject.push(response);
   }).then(function(){
-    knexSelectTactics('cpm', {
-      'media_plan_id': mediaPlanNumber,
-      'user_id': userId
-    }).then(function(response) {
+    knexSelectTactics('cpm', info).then(function(response) {
       console.log("#################", response);
       mediaPlanObject.push(response);
     }).then(function(){
-      knexSelectTactics('listings', {
-        'media_plan_id': mediaPlanNumber,
-        'user_id': userId
-      }).then(function(response) {
+      knexSelectTactics('listings', info).then(function(response) {
         console.log("#################", response);
         mediaPlanObject.push(response);
       }).then(function(){
-        knexSelectTactics('email', {
-          'media_plan_id': mediaPlanNumber,
-          'user_id': userId
-        }).then(function(response) {
+        knexSelectTactics('email', info).then(function(response) {
           console.log("#################", response);
           mediaPlanObject.push(response);
         }).then(function(){
-          knexSelectTactics('flat_fee', {
-            'media_plan_id': mediaPlanNumber,
-            'user_id': userId
-          }).then(function(response) {
+          knexSelectTactics('flat_fee', info).then(function(response) {
             console.log("#################", response);
             mediaPlanObject.push(response);
           }).then(function(response){
