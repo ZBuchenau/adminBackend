@@ -270,7 +270,7 @@ router.post('/mediaPlans/allTactics', function(req, res, next) {
     'user_id': userId
   }).then(function(response) {
     console.log("#################", response);
-    // mediaPlanObject.push(response);
+    mediaPlanObject.push(response);
   }).then(function(){
     knexSelectTactics('cpm', {
       'media_plan_id': mediaPlanNumber,
