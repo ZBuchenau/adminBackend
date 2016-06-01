@@ -322,7 +322,7 @@ router.post('/mediaPlans/titles', function(req, res, next) {
 
 router.post('/mediaPlans/ppcTactics', function(req, res, next) {
   console.log(req.body.data);
-  var userId = req.user.id[0];
+  var userId = req.user.id;
   var provider = req.body.data.providerName;
   var tactic = req.body.data.tacticName;
   var spend = req.body.data.tacticSpend;
@@ -350,7 +350,7 @@ router.post('/mediaPlans/ppcTactics', function(req, res, next) {
 
 router.post('/mediaPlans/cpmTactics', function(req, res, next) {
   console.log(req.body);
-  var userId = req.user.id[0];
+  var userId = req.user.id;
   var provider = req.body.data.providerName;
   var tactic = req.body.data.tacticName;
   var impressions = req.body.data.contractedImpressions;
@@ -380,7 +380,7 @@ router.post('/mediaPlans/cpmTactics', function(req, res, next) {
 
 router.post('/mediaPlans/listingTactics', function(req, res, next) {
   console.log(req.body);
-  var userId = req.user.id[0];
+  var userId = req.user.id;
   var provider = req.body.data.providerName;
   var tactic = req.body.data.tacticName;
   var spend = req.body.data.tacticSpend;
@@ -407,7 +407,7 @@ router.post('/mediaPlans/listingTactics', function(req, res, next) {
 
 router.post('/mediaPlans/emailTactics', function(req, res, next) {
   console.log(req.body);
-  var userId = req.user.id[0];
+  var userId = req.user.id;
   var provider = req.body.data.providerName;
   var tactic = req.body.data.tacticName;
   var spend = req.body.data.tacticSpend;
@@ -436,7 +436,7 @@ router.post('/mediaPlans/emailTactics', function(req, res, next) {
 router.post('/mediaPlans/flatFeeTactics', function(req, res, next) {
   console.log(req.body);
   console.log(req.body);
-  var userId = req.user.id[0];
+  var userId = req.user.id;
   var provider = req.body.data.providerName;
   var tactic = req.body.data.tacticName;
   var spend = req.body.data.tacticSpend;
