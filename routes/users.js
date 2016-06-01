@@ -339,7 +339,10 @@ router.post('/mediaPlans/ppcTactics', function(req, res, next) {
   knexInsert('ppc', info)
     .then(function(response) {
       console.log(response, "PPC TACTIC SUBMITTED TO DATABASE...");
-      res.send(response);
+      var data = response;
+      data[0].monthly_spend = parseInt(data[0].monthly_spend);
+      console.log(data);
+      res.send(data);
     })
     .catch(function(error) {
       console.log(error);
@@ -369,7 +372,10 @@ router.post('/mediaPlans/cpmTactics', function(req, res, next) {
   knexInsert('cpm', info)
     .then(function(response) {
       console.log(response, "CPM TACTIC SUBMITTED TO DATABASE...");
-      res.send(response);
+      var data = response;
+      data[0].monthly_spend = parseInt(data[0].monthly_spend);
+      console.log(data);
+      res.send(data);
     })
     .catch(function(error) {
       console.log(error);
@@ -397,7 +403,10 @@ router.post('/mediaPlans/listingTactics', function(req, res, next) {
   knexInsert('listings', info)
     .then(function(response) {
       console.log(response, "LISTING TACTIC SUBMITTED TO DATABASE...");
-      res.send(response);
+      var data = response;
+      data[0].monthly_spend = parseInt(data[0].monthly_spend);
+      console.log(data);
+      res.send(data);
     })
     .catch(function(error) {
       console.log(error);
@@ -424,7 +433,10 @@ router.post('/mediaPlans/emailTactics', function(req, res, next) {
   knexInsert('email', info)
     .then(function(response) {
       console.log(response, "EMAIL TACTIC SUBMITTED TO DATABASE...");
-      res.send(response);
+      var data = response;
+      data[0].monthly_spend = parseInt(data[0].monthly_spend);
+      console.log(data);
+      res.send(data);
     })
     .catch(function(error) {
       console.log(error);
@@ -453,7 +465,10 @@ router.post('/mediaPlans/flatFeeTactics', function(req, res, next) {
   knexInsert('flat_fee', info)
     .then(function(response) {
       console.log(response, "FLAT FEE TACTIC SUBMITTED TO DATABASE...");
-      res.send(response);
+      var data = response;
+      data[0].monthly_spend = parseInt(data[0].monthly_spend);
+      console.log(data);
+      res.send(data);
     })
     .catch(function(error) {
       console.log(error);
