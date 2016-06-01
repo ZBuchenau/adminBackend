@@ -56,7 +56,7 @@ router.post('/auth', function(req, res, next) {
   tokenInfo = jwt.verify(tokenToVerify, process.env.JWT_SECRET);
   console.log("tokenInfo = ", tokenInfo);
 
-  var tokenId = tokenInfo.id[0];
+  var tokenId = tokenInfo.id;
   console.log("tokenID = ", tokenId);
 
   if (tokenInfo) {
@@ -214,12 +214,14 @@ var knexSelectTactics = function(tableName, obj) {
 
 
 router.get('/mediaPlans/plans', function(req, res, next) {
-  console.log("USER IS # ", req.user.id[0]);
-  var userId = req.user.id[0];
+  console.log("USER IS # ", req.user.id);
+  var userId = req.user.id;
+  console.log("@@@@@@@@@@@@@@@@@@@@@@@@", userId);
   knex('media_plan')
     .where('user_id', userId)
     .select('*')
     .then(function(response) {
+      console.log(response);
       res.send(response);
     })
     .catch(function(err) {
@@ -230,10 +232,12 @@ router.get('/mediaPlans/plans', function(req, res, next) {
 
 
 router.post('/mediaPlans/clientInfo', function(req, res, next) {
+  console.log('USER HAS HIT THE CLIENT-INFO ENDPOINT');
   var mediaPlan = req.body.data.clientName;
   var budget = req.body.data.clientMonthlyBudget;
   var year = req.body.data.year;
-  var userId = req.user.id[0];
+  var userId = req.user.id;
+  console.log(userId);
 
   var info = {
     'user_id': userId,
@@ -245,8 +249,8 @@ router.post('/mediaPlans/clientInfo', function(req, res, next) {
 
   knexInsert('media_plan', info)
     .then(function(response) {
-      console.log(response, "THIS IS THE RESPONSE!!!!");
-      res.send(response);
+      console.log( "THIS IS THE RESPONSE!!!!: ", response[0]);
+      res.send(response[0]);
     })
     .catch(function(error) {
       console.log(error);
@@ -260,7 +264,7 @@ router.post('/mediaPlans/allTactics', function(req, res, next) {
   // console.log(req.body.mediaPlanId);
   // console.log(req.user.id[0]);
   var mediaPlanNumber = req.body.mediaPlanId;
-  var userId = req.user.id[0];
+  var userId = req.user.id;
   var mediaPlanObject = [];
 
   var info = {
@@ -269,23 +273,23 @@ router.post('/mediaPlans/allTactics', function(req, res, next) {
   };
 
   knexSelectTactics('ppc', info).then(function(response) {
-    console.log("#################", response);
+    // console.log("#################", response);
     mediaPlanObject.push(response);
   }).then(function(){
     knexSelectTactics('cpm', info).then(function(response) {
-      console.log("#################", response);
+      // console.log("#################", response);
       mediaPlanObject.push(response);
     }).then(function(){
       knexSelectTactics('listings', info).then(function(response) {
-        console.log("#################", response);
+        // console.log("#################", response);
         mediaPlanObject.push(response);
       }).then(function(){
         knexSelectTactics('email', info).then(function(response) {
-          console.log("#################", response);
+          // console.log("#################", response);
           mediaPlanObject.push(response);
         }).then(function(){
           knexSelectTactics('flat_fee', info).then(function(response) {
-            console.log("#################", response);
+            // console.log("#################", response);
             mediaPlanObject.push(response);
           }).then(function(response){
             console.log("+++++ MEDIA PLAN OBJECT +++++", mediaPlanObject);
@@ -302,7 +306,7 @@ router.post('/mediaPlans/allTactics', function(req, res, next) {
 router.post('/mediaPlans/titles', function(req, res, next) {
   console.log("TITLES HAS BEEN HIT...");
   // console.log(req.body);
-  var userId = req.user.id[0];
+  var userId = req.user.id;
   var mediaPlan = req.body.mediaPlanId;
   knex('media_plan')
     .where({
