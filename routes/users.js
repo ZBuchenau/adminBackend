@@ -475,4 +475,9 @@ router.post('/mediaPlans/flatFeeTactics', function(req, res, next) {
     });
 });
 
+router.post('/tactics/delete', function(req, res){
+  console.log("++++++++++++++++++++++++++++++++++", req.body);
+  res.send('Working On Deleting This Tactic');
+});
+
 module.exports = router;
