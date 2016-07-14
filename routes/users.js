@@ -211,6 +211,19 @@ var knexSelectTactics = function(tableName, obj) {
     .select('*');
 };
 
+var knexDelete = function(tableName, obj) {
+  return knex(tableName)
+    .returning(['media_plan_id', 'user_id'])
+    .where({
+      'user_id' : obj.user_id,
+      'media_plan_id' : obj.media_plan_id,
+      'tactic_name' : obj.tactic_name,
+      'monthly_spend' : obj.monthly_spend,
+      'provider_name' : obj.provider_name
+    })
+    .del();
+};
+
 
 
 router.get('/mediaPlans/plans', function(req, res, next) {
@@ -249,7 +262,7 @@ router.post('/mediaPlans/clientInfo', function(req, res, next) {
 
   knexInsert('media_plan', info)
     .then(function(response) {
-      console.log( "THIS IS THE RESPONSE!!!!: ", response[0]);
+      console.log("THIS IS THE RESPONSE!!!!: ", response[0]);
       res.send(response[0]);
     })
     .catch(function(error) {
@@ -275,30 +288,30 @@ router.post('/mediaPlans/allTactics', function(req, res, next) {
   knexSelectTactics('ppc', info).then(function(response) {
     // console.log("#################", response);
     mediaPlanObject.push(response);
-  }).then(function(){
+  }).then(function() {
     knexSelectTactics('cpm', info).then(function(response) {
       // console.log("#################", response);
       mediaPlanObject.push(response);
-    }).then(function(){
+    }).then(function() {
       knexSelectTactics('listings', info).then(function(response) {
         // console.log("#################", response);
         mediaPlanObject.push(response);
-      }).then(function(){
+      }).then(function() {
         knexSelectTactics('email', info).then(function(response) {
           // console.log("#################", response);
           mediaPlanObject.push(response);
-        }).then(function(){
+        }).then(function() {
           knexSelectTactics('flat_fee', info).then(function(response) {
             // console.log("#################", response);
             mediaPlanObject.push(response);
-          }).then(function(response){
+          }).then(function(response) {
             console.log("+++++ MEDIA PLAN OBJECT +++++", mediaPlanObject);
             res.send(mediaPlanObject);
           });
         });
       });
     });
-  }).catch(function(error){
+  }).catch(function(error) {
     console.log(error);
   });
 });
@@ -313,7 +326,7 @@ router.post('/mediaPlans/titles', function(req, res, next) {
       'media_plan_id': mediaPlan,
       'user_id': userId
     }).select('*')
-    .then(function(response){
+    .then(function(response) {
       console.log(response[0]);
       res.send(response[0]);
     });
@@ -475,9 +488,12 @@ router.post('/mediaPlans/flatFeeTactics', function(req, res, next) {
     });
 });
 
-router.post('/tactics/delete', function(req, res){
+router.post('/tactics/delete', function(req, res) {
   console.log("++++++++++++++++++++++++++++++++++", req.body);
-  res.send('Working On Deleting This Tactic');
+  knexDelete(req.body.tactic_id, req.body)
+  .then(function(response){
+    res.send(response);
+  });
 });
 
 module.exports = router;
