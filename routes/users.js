@@ -108,6 +108,7 @@ router.post('/signup', function(req, res, next) {
   var salt = bcrypt.genSaltSync(saltRounds);
   var hash = bcrypt.hashSync(userPassword, salt);
 
+
   knex('users')
     .where('email', userEmail)
     .then(function(response) {
@@ -198,7 +199,15 @@ router.post('/login', function(req, res, next) {
 
 });
 
-//submits and returns whatever object is submitted to the database
+
+// Checks to see if a parameter (in the form of {xyz: abc}) exists in the database.
+var knexCheckExists = function(tableName, paramToCheck) {
+  return knex(tableName)
+    .returning('*')
+    .where(paramToCheck);
+};
+
+//Inserts and returns whatever object was submitted to the database
 var knexInsert = function(tableName, obj) {
   return knex(tableName)
     .returning('*')
@@ -211,15 +220,17 @@ var knexSelectTactics = function(tableName, obj) {
     .select('*');
 };
 
+
+
 var knexDelete = function(tableName, obj) {
   return knex(tableName)
     .returning(['media_plan_id', 'user_id'])
     .where({
-      'user_id' : obj.user_id,
-      'media_plan_id' : obj.media_plan_id,
-      'tactic_name' : obj.tactic_name,
-      'monthly_spend' : obj.monthly_spend,
-      'provider_name' : obj.provider_name
+      'user_id': obj.user_id,
+      'media_plan_id': obj.media_plan_id,
+      'tactic_name': obj.tactic_name,
+      'monthly_spend': obj.monthly_spend,
+      'provider_name': obj.provider_name
     })
     .del();
 };
@@ -274,8 +285,8 @@ router.post('/mediaPlans/clientInfo', function(req, res, next) {
 
 
 router.post('/mediaPlans/allTactics', function(req, res, next) {
-  // console.log(req.body.mediaPlanId);
-  // console.log(req.user.id[0]);
+  console.log(req.body.mediaPlanId);
+
   var mediaPlanNumber = req.body.mediaPlanId;
   var userId = req.user.id;
   var mediaPlanObject = [];
@@ -284,6 +295,7 @@ router.post('/mediaPlans/allTactics', function(req, res, next) {
     'media_plan_id': mediaPlanNumber,
     'user_id': userId
   };
+  console.log('here');
 
   knexSelectTactics('ppc', info).then(function(response) {
     // console.log("#################", response);
@@ -487,13 +499,69 @@ router.post('/mediaPlans/flatFeeTactics', function(req, res, next) {
       console.log(error);
     });
 });
+// =============================================================================
+// SUBMIT TACTIC FUNCTION FOR ALL TACTICS
+// =============================================================================
+
+var knexSelectAllTactics = function(tableName, obj, arr) {
+  knex(tableName)
+    .where(obj)
+    .select('*')
+    .then(function(response){
+      return arr.push(response);
+    });
+};
+
+router.post('/mediaPlans/submitTactic', function(req, res) {
+  var tacticTableNames = ['ppc', 'cpm', 'listings', 'email', 'flat_fee'];
+  var user = req.user.id;
+  var mediaPlan = parseInt(req.body.data.mediaPlan);
+  var tableName = req.body.data.tacticType;
+  var provider = req.body.data.providerName;
+  var tacticName = req.body.data.tacticName;
+  var spend = req.body.data.tacticSpend;
+  var info = {
+    'user_id': user,
+    'media_plan_id': mediaPlan,
+    'provider_name': provider,
+    'tactic_name': tacticName,
+    'monthly_spend': spend
+  };
+  var mediaPlanIdentifiers = {
+    'user_id':user,
+    'media_plan_id': mediaPlan,
+    'provider_name': provider
+  };
+
+  knexCheckExists(tableName, {
+      'user_id': user,
+      'media_plan_id': mediaPlan,
+      'tactic_name': tacticName
+    }).then(function(response) {
+      if (response.length === 0) {
+        // RUN FUNCTION TO SUBMIT ANY TACTIC INTO ANY TABLE
+        console.log('EMPTY RESPONSE');
+        knexInsert(tableName, info)
+          .then(function(response) {
+            mediaPlanArray = [];
+        // RETRIEVE ALL TACTICS FOR EVERY ASPECT OF THIS MEDIA PLAN
+            for(var i = 0; i < tacticTableNames.length; i++){
+              knexSelectAllTactics(tacticTableNames[i], mediaPlanIdentifiers, mediaPlanArray);
+            }
+          });
+      } else {
+        console.log('TACTIC ALREADY EXISTS IN DATABASE');
+        res.send('Already Exists');
+      }
+    });
+});
 
 router.post('/tactics/delete', function(req, res) {
   console.log("++++++++++++++++++++++++++++++++++", req.body);
   knexDelete(req.body.tactic_id, req.body)
-  .then(function(response){
-    res.send(response);
-  });
+    .then(function(response) {
+      res.send(response);
+    });
 });
 
 module.exports = router;
