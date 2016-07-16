@@ -286,7 +286,7 @@ router.post('/mediaPlans/clientInfo', function(req, res, next) {
 
 
 router.post('/mediaPlans/allTactics', function(req, res, next) {
-  console.log(req.body.mediaPlanId);
+  // console.log(req.body.mediaPlanId);
 
   var mediaPlanNumber = req.body.mediaPlanId;
   var userId = req.user.id;
@@ -296,26 +296,20 @@ router.post('/mediaPlans/allTactics', function(req, res, next) {
     'media_plan_id': mediaPlanNumber,
     'user_id': userId
   };
-  console.log('here');
 
   knexSelectTactics('ppc', info).then(function(response) {
-    // console.log("#################", response);
     mediaPlanObject.push(response);
   }).then(function() {
     knexSelectTactics('cpm', info).then(function(response) {
-      // console.log("#################", response);
       mediaPlanObject.push(response);
     }).then(function() {
       knexSelectTactics('listings', info).then(function(response) {
-        // console.log("#################", response);
         mediaPlanObject.push(response);
       }).then(function() {
         knexSelectTactics('email', info).then(function(response) {
-          // console.log("#################", response);
           mediaPlanObject.push(response);
         }).then(function() {
           knexSelectTactics('flat_fee', info).then(function(response) {
-            // console.log("#################", response);
             mediaPlanObject.push(response);
           }).then(function(response) {
             console.log("+++++ MEDIA PLAN OBJECT +++++", mediaPlanObject);
@@ -539,32 +533,21 @@ router.post('/mediaPlans/submitTactic', function(req, res) {
         .then(function(response) {
           // RETRIEVE ALL TACTICS FOR EVERY ASPECT OF THIS MEDIA PLAN
           knexSelectTactics('ppc', mediaPlanIdentifiers).then(function(response) {
-            // console.log("#################", response);
             mediaPlanArray.push(response);
           }).then(function(response) {
             knexSelectTactics('cpm', mediaPlanIdentifiers).then(function(response) {
-              // console.log("#################", response);
               mediaPlanArray.push(response);
             }).then(function(response) {
               knexSelectTactics('listings', mediaPlanIdentifiers).then(function(response) {
-                // console.log("#################", response);
                 mediaPlanArray.push(response);
               }).then(function(response) {
                 knexSelectTactics('email', mediaPlanIdentifiers).then(function(response) {
-                  // console.log("#################", response);
                   mediaPlanArray.push(response);
                 }).then(function(response) {
-                  knexSelectTactics('listings', mediaPlanIdentifiers).then(function(response) {
-                    // console.log("#################", response);
+                  knexSelectTactics('flat_fee', mediaPlanIdentifiers).then(function(response) {
                     mediaPlanArray.push(response);
                   }).then(function(response) {
-                    knexSelectTactics('flat_fee', mediaPlanIdentifiers).then(function(response) {
-                      // console.log("#################", response);
-                      mediaPlanArray.push(response);
-                    }).then(function(response){
-                      console.log('MEDIA-PLAN-ARRAY', mediaPlanArray);
-                      res.send(mediaPlanArray);
-                    });
+                    res.send(mediaPlanArray);
                   });
                 });
               });
