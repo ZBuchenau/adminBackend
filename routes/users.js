@@ -8,6 +8,7 @@ var bcrypt = require('bcrypt');
 
 var authenticated = false;
 
+
 //====================================================
 //  USERS
 //====================================================
@@ -216,8 +217,8 @@ var knexInsert = function(tableName, obj) {
 
 var knexSelectTactics = function(tableName, obj) {
   return knex(tableName)
-    .where(obj)
-    .select('*');
+    .returning('*')
+    .where(obj);
 };
 
 
@@ -503,13 +504,20 @@ router.post('/mediaPlans/flatFeeTactics', function(req, res, next) {
 // SUBMIT TACTIC FUNCTION FOR ALL TACTICS
 // =============================================================================
 
-var knexSelectAllTactics = function(tableName, obj, arr) {
-  knex(tableName)
-    .where(obj)
-    .select('*')
-    .then(function(response){
-      return arr.push(response);
+var knexSelectAllTactics = function(tableNames, obj) {
+    var arr = [];
+    tableNames.forEach(function(name){
+      knex(name)
+      .returning('*')
+      .where(obj)
+      .then(function(response) {
+        // console.log('512 ', response);
+        arr.push(response);
+        console.log('THIS IS THE FINAL ARRAY!!!!!!!', arr);
+      });
+
     });
+    return arr;
 };
 
 router.post('/mediaPlans/submitTactic', function(req, res) {
@@ -528,32 +536,32 @@ router.post('/mediaPlans/submitTactic', function(req, res) {
     'monthly_spend': spend
   };
   var mediaPlanIdentifiers = {
-    'user_id':user,
+    'user_id': user,
     'media_plan_id': mediaPlan,
-    'provider_name': provider
   };
+  var mediaPlanArray = [];
 
   knexCheckExists(tableName, {
-      'user_id': user,
-      'media_plan_id': mediaPlan,
-      'tactic_name': tacticName
-    }).then(function(response) {
-      if (response.length === 0) {
-        // RUN FUNCTION TO SUBMIT ANY TACTIC INTO ANY TABLE
-        console.log('EMPTY RESPONSE');
-        knexInsert(tableName, info)
-          .then(function(response) {
-            mediaPlanArray = [];
-        // RETRIEVE ALL TACTICS FOR EVERY ASPECT OF THIS MEDIA PLAN
-            for(var i = 0; i < tacticTableNames.length; i++){
-              knexSelectAllTactics(tacticTableNames[i], mediaPlanIdentifiers, mediaPlanArray);
-            }
-          });
-      } else {
-        console.log('TACTIC ALREADY EXISTS IN DATABASE');
-        res.send('Already Exists');
-      }
-    });
+    'user_id': user,
+    'media_plan_id': mediaPlan,
+    'tactic_name': tacticName
+  }).then(function(response) {
+    if (response.length === 0) {
+      // RUN FUNCTION TO SUBMIT ANY TACTIC INTO ANY TABLE
+      console.log('EMPTY RESPONSE');
+      knexInsert(tableName, info)
+        .then(function(response) {
+          // console.log(response);
+          // var mediaPlanArray = [];
+          // RETRIEVE ALL TACTICS FOR EVERY ASPECT OF THIS MEDIA PLAN
+          mediaPlanArray.push(knexSelectAllTactics(tacticTableNames, mediaPlanIdentifiers));
+        });
+
+    } else {
+      console.log('TACTIC ALREADY EXISTS IN DATABASE');
+      res.send('Already Exists');
+    }
+  });
 });
 
 router.post('/tactics/delete', function(req, res) {
