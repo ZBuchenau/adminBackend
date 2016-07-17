@@ -1,6 +1,6 @@
 exports.up = function(knex, Promise) {
   return knex.schema.createTable('ppc', function(table) {
-    table.increments('ppc_id');
+    table.increments('tactic_id');
     table.integer('media_plan_id');
     table.integer('user_id');
     table.string('provider_name');

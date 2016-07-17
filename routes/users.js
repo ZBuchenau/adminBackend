@@ -12,35 +12,35 @@ var authenticated = false;
 //====================================================
 //  USERS
 //====================================================
-router.post('/', function(req, res, next) {
-
-  var userState;
-  var tokenToVerify = req.body.token;
-
-  if (jwt.verify(tokenToVerify, process.env.JWT_SECRET)) {
-
-    tokenInfo = jwt.verify(tokenToVerify, process.env.JWT_SECRET).id[0];
-    //deposit user-state to the database
-    console.log(tokenInfo, 'tokenInfo');
-    knex('users')
-      .where('id', tokenInfo)
-      .update({
-        'user_state': true
-      })
-      .returning('id')
-      .then(function(response) {
-        userState = response[0];
-        res.send(userState);
-      })
-      .catch(function(err) {
-        console.log(err);
-      });
-
-  } else {
-    userState = false;
-    res.send(userState);
-  }
-});
+// router.post('/', function(req, res, next) {
+//
+//   var userState;
+//   var tokenToVerify = req.body.token;
+//
+//   if (jwt.verify(tokenToVerify, process.env.JWT_SECRET)) {
+//
+//     tokenInfo = jwt.verify(tokenToVerify, process.env.JWT_SECRET).id[0];
+//     //deposit user-state to the database
+//     console.log(tokenInfo, 'tokenInfo');
+//     knex('users')
+//       .where('id', tokenInfo)
+//       .update({
+//         'user_state': true
+//       })
+//       .returning('id')
+//       .then(function(response) {
+//         userState = response[0];
+//         res.send(userState);
+//       })
+//       .catch(function(err) {
+//         console.log(err);
+//       });
+//
+//   } else {
+//     userState = false;
+//     res.send(userState);
+//   }
+// });
 
 
 //====================================================
@@ -48,29 +48,27 @@ router.post('/', function(req, res, next) {
 //====================================================
 router.post('/auth', function(req, res, next) {
 
-  console.log('USER HAS HIT THE AUTH ENDPOINT...');
+  console.log('1 USER HAS HIT THE AUTH ENDPOINT...');
 
   var authenticated;
+  var tokenInfo = req.user;
+  var tokenId = req.user.id;
 
-  var tokenToVerify = req.body.token;
-
-  tokenInfo = jwt.verify(tokenToVerify, process.env.JWT_SECRET);
-  console.log("tokenInfo = ", tokenInfo);
-
-  var tokenId = tokenInfo.id;
-  console.log("tokenID = ", tokenId);
+  // console.log("tokenInfo = ", tokenInfo);
+  // console.log("tokenID = ",  tokenId);
 
   if (tokenInfo) {
     knex('users')
+      .returning('id', 'first_name', 'last_name', 'username', 'email')
       .where({
         'id': tokenId
       })
-      .select('*')
       .then(function(data) {
-        console.log(data);
+        // console.log(data);
+        // console.log('BREAK');
         var info = data[0];
         // console.log(info);
-
+        // console.log('BREAK');
         var userInfo = {
           email: info.email,
           firstname: info.first_name,
@@ -78,15 +76,29 @@ router.post('/auth', function(req, res, next) {
           id: info.id,
           username: info.username
         };
-        console.log(userInfo);
+        // console.log(userInfo);
+        console.log('2 LEAVING AUTH ENDPOINT...');
         res.send(userInfo);
       });
   } else {
     res.send(false);
   }
+});
 
-  // res.send(authenticated);
-
+router.get('/mediaPlans/plans', function(req, res, next) {
+  console.log("3 USER #" + req.user.id + ' HAS HIT THE mediaPlans/plans ENDPOINT...');
+  var userId = req.user.id;
+  console.log("@@@@@@@@@@@@@@@@@@@@@@@@", userId);
+  knex('media_plan')
+    .where('user_id', userId)
+    .select('*')
+    .then(function(response) {
+      console.log('4 LEAVING THE mediaPlans/plans ENDPOINT...');
+      res.send(response);
+    })
+    .catch(function(err) {
+      console.log(err);
+    });
 });
 
 
@@ -95,9 +107,6 @@ router.post('/auth', function(req, res, next) {
 //====================================================
 router.post('/signup', function(req, res, next) {
   console.log('user has hit the /USERS/SIGNUP endpoint');
-  // console.log(req.body);
-
-
 
   var userFirstName = req.body.firstName;
   var userLastName = req.body.lastName;
@@ -113,8 +122,6 @@ router.post('/signup', function(req, res, next) {
   knex('users')
     .where('email', userEmail)
     .then(function(response) {
-      // console.log(response);
-
       if (response.length === 0) {
         knex('users')
           .returning('id')
@@ -131,9 +138,6 @@ router.post('/signup', function(req, res, next) {
               id: response,
               expiresIn: "14d"
             }, process.env.JWT_SECRET);
-
-            // console.log(myToken);
-
             res.send({
               token: myToken
             });
@@ -178,6 +182,7 @@ router.post('/login', function(req, res, next) {
           lastname: userInfo.last_name,
           username: userInfo.username
         };
+        console.log('here');
         return userInfo;
       } else {
         res.send(401, 'Wrong Email or Password');
@@ -223,45 +228,20 @@ var knexSelectTactics = function(tableName, obj) {
 
 
 
-var knexDelete = function(tableName, obj) {
-  return knex(tableName)
-    .returning(['media_plan_id', 'user_id'])
-    .where({
-      'user_id': obj.user_id,
-      'media_plan_id': obj.media_plan_id,
-      'tactic_name': obj.tactic_name,
-      'monthly_spend': obj.monthly_spend,
-      'provider_name': obj.provider_name
-    })
-    .del();
-};
 
 
 
-router.get('/mediaPlans/plans', function(req, res, next) {
-  console.log("USER IS # ", req.user.id);
-  var userId = req.user.id;
-  console.log("@@@@@@@@@@@@@@@@@@@@@@@@", userId);
-  knex('media_plan')
-    .where('user_id', userId)
-    .select('*')
-    .then(function(response) {
-      console.log(response);
-      res.send(response);
-    })
-    .catch(function(err) {
-      console.log(err);
-    });
-});
+
+
 
 
 
 router.post('/mediaPlans/clientInfo', function(req, res, next) {
   console.log('USER HAS HIT THE CLIENT-INFO ENDPOINT');
-  var mediaPlan = req.body.data.clientName;
-  var budget = req.body.data.clientMonthlyBudget;
-  var year = req.body.data.year;
-  var userId = req.user.id;
+  var mediaPlan = req.body.clientName;
+  var budget = req.body.clientMonthlyBudget;
+  var year = req.body.year;
+  var userId = parseInt(req.user.id);
   console.log(userId);
 
   var info = {
@@ -270,6 +250,8 @@ router.post('/mediaPlans/clientInfo', function(req, res, next) {
     'monthly_budget': budget,
     'year': year
   };
+
+  console.log(info);
 
 
   knexInsert('media_plan', info)
@@ -501,13 +483,14 @@ router.post('/mediaPlans/flatFeeTactics', function(req, res, next) {
 
 
 router.post('/mediaPlans/submitTactic', function(req, res) {
+  console.log(req.body);
   var tacticTableNames = ['ppc', 'cpm', 'listings', 'email', 'flat_fee'];
   var user = req.user.id;
-  var mediaPlan = parseInt(req.body.data.mediaPlan);
-  var tableName = req.body.data.tacticType;
-  var provider = req.body.data.providerName;
-  var tacticName = req.body.data.tacticName;
-  var spend = req.body.data.tacticSpend;
+  var mediaPlan = parseInt(req.body.mediaPlan);
+  var tableName = req.body.tacticType;
+  var provider = req.body.providerName;
+  var tacticName = req.body.tacticName;
+  var spend = req.body.tacticSpend;
   var info = {
     'user_id': user,
     'media_plan_id': mediaPlan,
@@ -561,12 +544,54 @@ router.post('/mediaPlans/submitTactic', function(req, res) {
   });
 });
 
+var knexDelete = function(tableName, obj) {
+  return knex(tableName)
+    .returning(['media_plan_id', 'user_id'])
+    .where({
+      'user_id': obj.user_id,
+      'media_plan_id': obj.media_plan_id,
+      'tactic_id': obj.tactic_id
+    })
+    .del();
+};
+
 router.post('/tactics/delete', function(req, res) {
   console.log("++++++++++++++++++++++++++++++++++", req.body);
-  knexDelete(req.body.tactic_id, req.body)
-    .then(function(response) {
-      res.send(response);
+  var tacticInfo = req.body;
+  var user = req.body.user_id;
+  var mediaPlanId = req.body.media_plan_id;
+  var mediaPlan = {
+    'user_id': user,
+    'media_plan_id': mediaPlanId,
+  };
+  console.log(req.body.tactic_id);
+  knexDelete(req.body.tacticType, tacticInfo)
+  .then(function(response) {
+    console.log(response);
+    var mediaPlanArr = [];
+    // RETRIEVE ALL TACTICS FOR EVERY ASPECT OF THIS MEDIA PLAN
+    knexSelectTactics('ppc', mediaPlan).then(function(response) {
+      mediaPlanArr.push(response);
+    }).then(function(response) {
+      knexSelectTactics('cpm', mediaPlan).then(function(response) {
+        mediaPlanArr.push(response);
+      }).then(function(response) {
+        knexSelectTactics('listings', mediaPlan).then(function(response) {
+          mediaPlanArr.push(response);
+        }).then(function(response) {
+          knexSelectTactics('email', mediaPlan).then(function(response) {
+            mediaPlanArr.push(response);
+          }).then(function(response) {
+            knexSelectTactics('flat_fee', mediaPlan).then(function(response) {
+              mediaPlanArr.push(response);
+            }).then(function(response) {
+              res.send(mediaPlanArr);
+            });
+          });
+        });
+      });
     });
+  });
 });
 
 module.exports = router;
