@@ -546,7 +546,6 @@ router.post('/mediaPlans/submitTactic', function(req, res) {
 
 var knexDelete = function(tableName, obj) {
   return knex(tableName)
-    .returning(['media_plan_id', 'user_id'])
     .where({
       'user_id': obj.user_id,
       'media_plan_id': obj.media_plan_id,
@@ -557,32 +556,35 @@ var knexDelete = function(tableName, obj) {
 
 router.post('/tactics/delete', function(req, res) {
   console.log("++++++++++++++++++++++++++++++++++", req.body);
+  var mediaPlanArr = [];
   var tacticInfo = req.body;
   var user = req.body.user_id;
   var mediaPlanId = req.body.media_plan_id;
-  var mediaPlan = {
+  var table = req.body.tacticType;
+  console.log(table);
+  var mediaPlanIdentifiers = {
     'user_id': user,
     'media_plan_id': mediaPlanId,
   };
   console.log(req.body.tactic_id);
-  knexDelete(req.body.tacticType, tacticInfo)
+  knexDelete(table, tacticInfo)
   .then(function(response) {
-    console.log(response);
-    var mediaPlanArr = [];
+    console.log('here', mediaPlanIdentifiers);
+    // console.log(response);
     // RETRIEVE ALL TACTICS FOR EVERY ASPECT OF THIS MEDIA PLAN
-    knexSelectTactics('ppc', mediaPlan).then(function(response) {
+    knexSelectTactics('ppc', mediaPlanIdentifiers).then(function(response) {
       mediaPlanArr.push(response);
     }).then(function(response) {
-      knexSelectTactics('cpm', mediaPlan).then(function(response) {
+      knexSelectTactics('cpm', mediaPlanIdentifiers).then(function(response) {
         mediaPlanArr.push(response);
       }).then(function(response) {
-        knexSelectTactics('listings', mediaPlan).then(function(response) {
+        knexSelectTactics('listings', mediaPlanIdentifiers).then(function(response) {
           mediaPlanArr.push(response);
         }).then(function(response) {
-          knexSelectTactics('email', mediaPlan).then(function(response) {
+          knexSelectTactics('email', mediaPlanIdentifiers).then(function(response) {
             mediaPlanArr.push(response);
           }).then(function(response) {
-            knexSelectTactics('flat_fee', mediaPlan).then(function(response) {
+            knexSelectTactics('flat_fee', mediaPlanIdentifiers).then(function(response) {
               mediaPlanArr.push(response);
             }).then(function(response) {
               res.send(mediaPlanArr);
