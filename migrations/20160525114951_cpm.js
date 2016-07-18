@@ -6,7 +6,7 @@ exports.up = function(knex, Promise) {
     table.integer('user_id');
     table.string('provider_name');
     table.string('tactic_name');
-    table.integer('impressions_contracted');
+    table.decimal('cost_per_thousand');
     table.decimal('monthly_spend');
   });
 };
