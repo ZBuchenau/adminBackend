@@ -487,7 +487,6 @@ router.post('/tactics/edit', function(req, res){
   var mediaPlanIdentifiers = {
     'user_id': user,
     'media_plan_id': mediaPlanId,
-    'tactic_id' : req.body.tactic_id
   };
 
   knexEdit(table, tacticInfo)
