@@ -317,7 +317,7 @@ router.post('/mediaPlans/titles', function(req, res, next) {
 // =============================================================================
 router.post('/mediaPlans/submitTactic', function(req, res) {
   // console.log(req.body);
-  var tacticTableNames = ['ppc', 'cpm', 'listings', 'email', 'flat_fee'];
+  // var tacticTableNames = ['ppc', 'cpm', 'listings', 'email', 'flat_fee'];
   var user = parseInt(req.user.id);
   var mediaPlan = parseInt(req.body.mediaPlan);
   var tableName = req.body.tacticType;
@@ -340,7 +340,8 @@ router.post('/mediaPlans/submitTactic', function(req, res) {
   knexCheckExists(tableName, {
     'user_id': user,
     'media_plan_id': mediaPlan,
-    'tactic_name': tacticName
+    'tactic_name': tacticName,
+    'provider_name' : provider
   }).then(function(response) {
     console.log(response);
     if (response.length === 0 && tableName !== 'cpm') {
@@ -402,7 +403,7 @@ router.post('/mediaPlans/submitTactic', function(req, res) {
 
     } else {
       console.log('TACTIC ALREADY EXISTS IN DATABASE');
-      res.send('Already Exists');
+      res.send(false);
     }
   });
 });
@@ -415,6 +416,17 @@ var knexDelete = function(tableName, obj) {
       'tactic_id': obj.tactic_id
     })
     .del();
+};
+
+var knexEdit = function(tableName, obj){
+  return knex(tableName)
+  .returning('*')
+    .where({
+      'user_id': obj.user_id,
+      'media_plan_id': obj.media_plan_id,
+      'tactic_id': obj.tactic_id
+    })
+    .update(obj);
 };
 
 router.post('/tactics/delete', function(req, res) {
@@ -457,6 +469,52 @@ router.post('/tactics/delete', function(req, res) {
       });
     });
   });
+});
+
+router.post('/tactics/edit', function(req, res){
+  var mediaPlanArr = [];
+  var user = req.body.user_id;
+  var mediaPlanId = req.body.media_plan_id;
+  var table = req.body.tacticType;
+  var tacticInfo = {
+    'user_id' : user,
+    'media_plan_id' : mediaPlanId,
+    'tactic_id' : req.body.tactic_id,
+    'provider_name' : req.body.provider_name,
+    'tactic_name' : req.body.tactic_name,
+    'monthly_spend' : req.body.monthly_spend
+  };
+  var mediaPlanIdentifiers = {
+    'user_id': user,
+    'media_plan_id': mediaPlanId,
+    'tactic_id' : req.body.tactic_id
+  };
+
+  knexEdit(table, tacticInfo)
+    .then(function(response){
+      console.log('RESPONSE!!!: ', response);
+      knexSelectTactics('ppc', mediaPlanIdentifiers).then(function(response) {
+        mediaPlanArr.push(response);
+      }).then(function(response) {
+        knexSelectTactics('cpm', mediaPlanIdentifiers).then(function(response) {
+          mediaPlanArr.push(response);
+        }).then(function(response) {
+          knexSelectTactics('listings', mediaPlanIdentifiers).then(function(response) {
+            mediaPlanArr.push(response);
+          }).then(function(response) {
+            knexSelectTactics('email', mediaPlanIdentifiers).then(function(response) {
+              mediaPlanArr.push(response);
+            }).then(function(response) {
+              knexSelectTactics('flat_fee', mediaPlanIdentifiers).then(function(response) {
+                mediaPlanArr.push(response);
+              }).then(function(response) {
+                res.send(mediaPlanArr);
+              });
+            });
+          });
+        });
+      });
+    });
 });
 
 module.exports = router;
