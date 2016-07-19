@@ -321,7 +321,7 @@ router.post('/mediaPlans/submitTactic', function(req, res) {
   var user = parseInt(req.user.id);
   var mediaPlan = parseInt(req.body.mediaPlan);
   var tableName = req.body.tacticType;
-  var provider = req.body.providerName;
+  var provider = req.body.providerName.toUpperCase();
   var tacticName = req.body.tacticName;
   var spend = req.body.tacticSpend;
   var info = {
@@ -419,6 +419,7 @@ var knexDelete = function(tableName, obj) {
 };
 
 var knexEdit = function(tableName, obj){
+  obj.provider_name = obj.provider_name.toUpperCase();
   return knex(tableName)
   .returning('*')
     .where({
