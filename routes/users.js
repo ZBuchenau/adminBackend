@@ -15,35 +15,6 @@ var dbTableNames = ['ppc', 'cpm', 'listings', 'email', 'flat_fee'];
 //====================================================
 //  USERS
 //====================================================
-// router.post('/', function(req, res, next) {
-//
-//   var userState;
-//   var tokenToVerify = req.body.token;
-//
-//   if (jwt.verify(tokenToVerify, process.env.JWT_SECRET)) {
-//
-//     tokenInfo = jwt.verify(tokenToVerify, process.env.JWT_SECRET).id[0];
-//     //deposit user-state to the database
-//     console.log(tokenInfo, 'tokenInfo');
-//     knex('users')
-//       .where('id', tokenInfo)
-//       .update({
-//         'user_state': true
-//       })
-//       .returning('id')
-//       .then(function(response) {
-//         userState = response[0];
-//         res.send(userState);
-//       })
-//       .catch(function(err) {
-//         console.log(err);
-//       });
-//
-//   } else {
-//     userState = false;
-//     res.send(userState);
-//   }
-// });
 
 
 //====================================================
