@@ -4,9 +4,12 @@ var https = require('https');
 var jwt = require('jsonwebtoken');
 var knex = require('../db/knex.js');
 var bcrypt = require('bcrypt');
+var async = require('async');
 
 
 var authenticated = false;
+
+var dbTableNames = ['ppc', 'cpm', 'listings', 'email', 'flat_fee'];
 
 
 //====================================================
@@ -55,7 +58,7 @@ router.post('/auth', function(req, res, next) {
   var tokenId = parseInt(req.user.id);
 
   // console.log("tokenInfo = ", tokenInfo);
-  console.log("tokenID = ",  tokenId);
+  console.log("tokenID = ", tokenId);
 
   if (tokenInfo) {
     knex('users')
@@ -255,8 +258,6 @@ router.post('/mediaPlans/clientInfo', function(req, res, next) {
 
 });
 
-
-
 router.post('/mediaPlans/allTactics', function(req, res, next) {
   // console.log(req.body.mediaPlanId);
 
@@ -268,6 +269,7 @@ router.post('/mediaPlans/allTactics', function(req, res, next) {
     'media_plan_id': mediaPlanNumber,
     'user_id': userId
   };
+
 
   knexSelectTactics('ppc', info).then(function(response) {
     mediaPlanObject.push(response);
@@ -341,7 +343,7 @@ router.post('/mediaPlans/submitTactic', function(req, res) {
     'user_id': user,
     'media_plan_id': mediaPlan,
     'tactic_name': tacticName,
-    'provider_name' : provider
+    'provider_name': provider
   }).then(function(response) {
     console.log(response);
     if (response.length === 0 && tableName !== 'cpm') {
@@ -372,7 +374,7 @@ router.post('/mediaPlans/submitTactic', function(req, res) {
             });
           });
         });
-    } else if(response.length === 0 && tableName === 'cpm'){
+    } else if (response.length === 0 && tableName === 'cpm') {
       info.cost_per_thousand = req.body.cost_per_thousand;
       console.log(info);
       knexInsert(tableName, info)
@@ -418,10 +420,10 @@ var knexDelete = function(tableName, obj) {
     .del();
 };
 
-var knexEdit = function(tableName, obj){
+var knexEdit = function(tableName, obj) {
   obj.provider_name = obj.provider_name.toUpperCase();
   return knex(tableName)
-  .returning('*')
+    .returning('*')
     .where({
       'user_id': obj.user_id,
       'media_plan_id': obj.media_plan_id,
@@ -444,46 +446,46 @@ router.post('/tactics/delete', function(req, res) {
   };
   console.log(req.body.tactic_id);
   knexDelete(table, tacticInfo)
-  .then(function(response) {
-    console.log('here', mediaPlanIdentifiers);
-    // console.log(response);
-    // RETRIEVE ALL TACTICS FOR EVERY ASPECT OF THIS MEDIA PLAN
-    knexSelectTactics('ppc', mediaPlanIdentifiers).then(function(response) {
-      mediaPlanArr.push(response);
-    }).then(function(response) {
-      knexSelectTactics('cpm', mediaPlanIdentifiers).then(function(response) {
+    .then(function(response) {
+      console.log('here', mediaPlanIdentifiers);
+      // console.log(response);
+      // RETRIEVE ALL TACTICS FOR EVERY ASPECT OF THIS MEDIA PLAN
+      knexSelectTactics('ppc', mediaPlanIdentifiers).then(function(response) {
         mediaPlanArr.push(response);
       }).then(function(response) {
-        knexSelectTactics('listings', mediaPlanIdentifiers).then(function(response) {
+        knexSelectTactics('cpm', mediaPlanIdentifiers).then(function(response) {
           mediaPlanArr.push(response);
         }).then(function(response) {
-          knexSelectTactics('email', mediaPlanIdentifiers).then(function(response) {
+          knexSelectTactics('listings', mediaPlanIdentifiers).then(function(response) {
             mediaPlanArr.push(response);
           }).then(function(response) {
-            knexSelectTactics('flat_fee', mediaPlanIdentifiers).then(function(response) {
+            knexSelectTactics('email', mediaPlanIdentifiers).then(function(response) {
               mediaPlanArr.push(response);
             }).then(function(response) {
-              res.send(mediaPlanArr);
+              knexSelectTactics('flat_fee', mediaPlanIdentifiers).then(function(response) {
+                mediaPlanArr.push(response);
+              }).then(function(response) {
+                res.send(mediaPlanArr);
+              });
             });
           });
         });
       });
     });
-  });
 });
 
-router.post('/tactics/edit', function(req, res){
+router.post('/tactics/edit', function(req, res) {
   var mediaPlanArr = [];
   var user = req.body.user_id;
   var mediaPlanId = req.body.media_plan_id;
   var table = req.body.tacticType;
   var tacticInfo = {
-    'user_id' : user,
-    'media_plan_id' : mediaPlanId,
-    'tactic_id' : req.body.tactic_id,
-    'provider_name' : req.body.provider_name,
-    'tactic_name' : req.body.tactic_name,
-    'monthly_spend' : req.body.monthly_spend
+    'user_id': user,
+    'media_plan_id': mediaPlanId,
+    'tactic_id': req.body.tactic_id,
+    'provider_name': req.body.provider_name,
+    'tactic_name': req.body.tactic_name,
+    'monthly_spend': req.body.monthly_spend
   };
   var mediaPlanIdentifiers = {
     'user_id': user,
@@ -491,7 +493,7 @@ router.post('/tactics/edit', function(req, res){
   };
 
   knexEdit(table, tacticInfo)
-    .then(function(response){
+    .then(function(response) {
       console.log('RESPONSE!!!: ', response);
       knexSelectTactics('ppc', mediaPlanIdentifiers).then(function(response) {
         mediaPlanArr.push(response);
