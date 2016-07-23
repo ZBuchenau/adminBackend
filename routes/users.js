@@ -9,8 +9,6 @@ var async = require('async');
 
 var authenticated = false;
 
-var dbTableNames = ['ppc', 'cpm', 'listings', 'email', 'flat_fee'];
-
 
 //====================================================
 //  USERS
