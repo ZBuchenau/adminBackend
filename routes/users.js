@@ -1,4 +1,4 @@
-var express = require('express');
+ var express = require('express');
 var router = express.Router();
 var https = require('https');
 var jwt = require('jsonwebtoken');
@@ -21,9 +21,6 @@ router.post('/auth', function(req, res, next) {
   var tokenInfo = req.user;
   var tokenId = parseInt(req.user.id);
 
-  // console.log("tokenInfo = ", tokenInfo);
-  console.log("tokenID = ", tokenId);
-
   if (tokenInfo) {
     knex('users')
       .returning('id', 'first_name', 'last_name', 'username', 'email')
@@ -31,11 +28,7 @@ router.post('/auth', function(req, res, next) {
         'id': tokenId
       })
       .then(function(data) {
-        // console.log(data);
-        // console.log('BREAK');
         var info = data[0];
-        // console.log(info);
-        // console.log('BREAK');
         var userInfo = {
           email: info.email,
           firstname: info.first_name,
@@ -43,7 +36,6 @@ router.post('/auth', function(req, res, next) {
           id: info.id,
           username: info.username
         };
-        // console.log(userInfo);
         console.log('2 LEAVING AUTH ENDPOINT...');
         res.send(userInfo);
       });
