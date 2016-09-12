@@ -302,7 +302,7 @@ router.post('/mediaPlans/submitTactic', function(req, res) {
     'provider_name': provider
   }).then(function(response) {
     console.log(response);
-    if (response.length === 0 && tableName !== 'cpm' && tableName !== 'listings') {
+    if (response.length === 0 && tableName !== 'cpm' && tableName !== 'listings' && tableName !== 'email') {
       // RUN FUNCTION TO SUBMIT ANY TACTIC INTO ANY TABLE
       console.log('EMPTY RESPONSE');
       knexInsert(tableName, info)
@@ -362,6 +362,35 @@ router.post('/mediaPlans/submitTactic', function(req, res) {
 
     } else if(response.length === 0 && tableName === 'listings'){
       info.communities = req.body.communities;
+
+      knexInsert(tableName, info)
+        .then(function(response) {
+          // RETRIEVE ALL TACTICS FOR EVERY ASPECT OF THIS MEDIA PLAN
+          knexSelectTactics('ppc', mediaPlanIdentifiers).then(function(response) {
+            mediaPlanArray.push(response);
+          }).then(function(response) {
+            knexSelectTactics('cpm', mediaPlanIdentifiers).then(function(response) {
+              mediaPlanArray.push(response);
+            }).then(function(response) {
+              knexSelectTactics('listings', mediaPlanIdentifiers).then(function(response) {
+                mediaPlanArray.push(response);
+              }).then(function(response) {
+                knexSelectTactics('email', mediaPlanIdentifiers).then(function(response) {
+                  mediaPlanArray.push(response);
+                }).then(function(response) {
+                  knexSelectTactics('flat_fee', mediaPlanIdentifiers).then(function(response) {
+                    mediaPlanArray.push(response);
+                  }).then(function(response) {
+                    res.send(mediaPlanArray);
+                  });
+                });
+              });
+            });
+          });
+        });
+    } else if(response.length === 0 && tableName === 'email'){
+      console.log("IIIIIIIIIIIIIIII", req.body);
+      info.emails_per_year = req.body.emails_per_year;
 
       knexInsert(tableName, info)
         .then(function(response) {

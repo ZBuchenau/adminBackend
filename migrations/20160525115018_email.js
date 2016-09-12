@@ -7,6 +7,7 @@ exports.up = function(knex, Promise) {
     table.string('provider_name');
     table.string('tactic_name');
     table.decimal('monthly_spend');
+    table.integer('emails_per_year');
   });
 };
 
