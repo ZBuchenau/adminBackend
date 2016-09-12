@@ -274,7 +274,7 @@ router.post('/mediaPlans/titles', function(req, res, next) {
 // SUBMIT TACTIC FUNCTION FOR ALL TACTICS
 // =============================================================================
 router.post('/mediaPlans/submitTactic', function(req, res) {
-  // console.log(req.body);
+  console.log(req.body);
   // var tacticTableNames = ['ppc', 'cpm', 'listings', 'email', 'flat_fee'];
   var user = parseInt(req.user.id);
   var mediaPlan = parseInt(req.body.mediaPlan);
@@ -302,7 +302,7 @@ router.post('/mediaPlans/submitTactic', function(req, res) {
     'provider_name': provider
   }).then(function(response) {
     console.log(response);
-    if (response.length === 0 && tableName !== 'cpm') {
+    if (response.length === 0 && tableName !== 'cpm' && tableName !== 'listings') {
       // RUN FUNCTION TO SUBMIT ANY TACTIC INTO ANY TABLE
       console.log('EMPTY RESPONSE');
       knexInsert(tableName, info)
@@ -332,6 +332,7 @@ router.post('/mediaPlans/submitTactic', function(req, res) {
         });
     } else if (response.length === 0 && tableName === 'cpm') {
       info.cost_per_thousand = req.body.cost_per_thousand;
+
       console.log(info);
       knexInsert(tableName, info)
         .then(function(response) {
@@ -359,6 +360,34 @@ router.post('/mediaPlans/submitTactic', function(req, res) {
           });
         });
 
+    } else if(response.length === 0 && tableName === 'listings'){
+      info.communities = req.body.communities;
+
+      knexInsert(tableName, info)
+        .then(function(response) {
+          // RETRIEVE ALL TACTICS FOR EVERY ASPECT OF THIS MEDIA PLAN
+          knexSelectTactics('ppc', mediaPlanIdentifiers).then(function(response) {
+            mediaPlanArray.push(response);
+          }).then(function(response) {
+            knexSelectTactics('cpm', mediaPlanIdentifiers).then(function(response) {
+              mediaPlanArray.push(response);
+            }).then(function(response) {
+              knexSelectTactics('listings', mediaPlanIdentifiers).then(function(response) {
+                mediaPlanArray.push(response);
+              }).then(function(response) {
+                knexSelectTactics('email', mediaPlanIdentifiers).then(function(response) {
+                  mediaPlanArray.push(response);
+                }).then(function(response) {
+                  knexSelectTactics('flat_fee', mediaPlanIdentifiers).then(function(response) {
+                    mediaPlanArray.push(response);
+                  }).then(function(response) {
+                    res.send(mediaPlanArray);
+                  });
+                });
+              });
+            });
+          });
+        });
     } else {
       console.log('TACTIC ALREADY EXISTS IN DATABASE');
       res.send(false);
