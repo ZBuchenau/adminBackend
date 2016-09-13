@@ -9,6 +9,28 @@ var async = require('async');
 
 var authenticated = false;
 
+var knexDelete = function(tableName, obj) {
+  return knex(tableName)
+    .where({
+      'user_id': obj.user_id,
+      'media_plan_id': obj.media_plan_id,
+      'tactic_id': obj.tactic_id
+    })
+    .del();
+};
+
+var knexEdit = function(tableName, obj) {
+  obj.provider_name = obj.provider_name.toUpperCase();
+  return knex(tableName)
+    .returning('*')
+    .where({
+      'user_id': obj.user_id,
+      'media_plan_id': obj.media_plan_id,
+      'tactic_id': obj.tactic_id
+    })
+    .update(obj);
+};
+
 // ***** USERS *****
 //====================================================
 //  AUTHENTICATE USER
@@ -218,6 +240,49 @@ router.post('/mediaPlans/clientInfo', function(req, res, next) {
     }
   });
 });
+
+router.post('/mediaPlans/clientEdit', function(req, res, next){
+
+  var user = req.user.id;
+  var mediaPlan = req.body.mediaPlanId;
+  var name = req.body.clientName;
+  var budget = req.body.clientMonthlyBudget;
+  var year = req.body.year;
+
+  var clientInfo = {
+    'user_id': user,
+    'media_plan_id': mediaPlan,
+    'name': name,
+    'monthly_budget': budget,
+    'year': year
+  };
+  console.log("CLIENT INFO:", clientInfo);
+
+  knexCheckExists('media_plan', {'user_id' : user, 'name' : name})
+  .then(function(response){
+    if(response.length !== 0){
+      console.log('CLIENT ALREADY EXISTS!!!');
+      res.send(false);
+    } else {
+      knexSelectTactics('media_plan', clientInfo)
+      .then(function(response){
+        knex('media_plan')
+          .returning('*')
+          .where({
+            'user_id': user,
+            'media_plan_id': mediaPlan,
+          })
+          .update(clientInfo)
+          .then(function(response){
+            console.log(response);
+          });
+      });
+    }
+  });
+
+
+});
+
 
 router.post('/mediaPlans/allTactics', function(req, res, next) {
   // console.log(req.body.mediaPlanId);
@@ -429,27 +494,7 @@ router.post('/mediaPlans/submitTactic', function(req, res) {
   });
 });
 
-var knexDelete = function(tableName, obj) {
-  return knex(tableName)
-    .where({
-      'user_id': obj.user_id,
-      'media_plan_id': obj.media_plan_id,
-      'tactic_id': obj.tactic_id
-    })
-    .del();
-};
 
-var knexEdit = function(tableName, obj) {
-  obj.provider_name = obj.provider_name.toUpperCase();
-  return knex(tableName)
-    .returning('*')
-    .where({
-      'user_id': obj.user_id,
-      'media_plan_id': obj.media_plan_id,
-      'tactic_id': obj.tactic_id
-    })
-    .update(obj);
-};
 
 router.post('/tactics/delete', function(req, res) {
   console.log("++++++++++++++++++++++++++++++++++", req.body);
