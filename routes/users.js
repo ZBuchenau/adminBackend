@@ -200,18 +200,23 @@ router.post('/mediaPlans/clientInfo', function(req, res, next) {
     'year': year
   };
 
-  console.log(info);
-
-
-  knexInsert('media_plan', info)
-    .then(function(response) {
-      console.log("THIS IS THE RESPONSE!!!!: ", response[0]);
-      res.send(response[0]);
-    })
-    .catch(function(error) {
-      console.log(error);
-    });
-
+  knexCheckExists('media_plan', {'user_id':userId, 'name':mediaPlan})
+  .then(function(response){
+    console.log('CHECK THIS RESPONSE!!', response);
+    if(response.length !== 0){
+      console.log('CLIENT ALREADY EXISTS!!!');
+      res.send(false);
+    } else {
+      knexInsert('media_plan', info)
+        .then(function(response) {
+          console.log("THIS IS THE RESPONSE!!!!: ", response[0]);
+          res.send(response[0]);
+        })
+        .catch(function(error) {
+          console.log(error);
+        });
+    }
+  });
 });
 
 router.post('/mediaPlans/allTactics', function(req, res, next) {
