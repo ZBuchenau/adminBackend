@@ -258,7 +258,7 @@ router.post('/mediaPlans/clientEdit', function(req, res, next){
   };
   console.log("CLIENT INFO:", clientInfo);
 
-  knexCheckExists('media_plan', {'user_id' : user, 'name' : name})
+  knexCheckExists('media_plan', clientInfo)
   .then(function(response){
     if(response.length !== 0){
       console.log('CLIENT ALREADY EXISTS!!!');
