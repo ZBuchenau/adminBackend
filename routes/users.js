@@ -275,6 +275,7 @@ router.post('/mediaPlans/clientEdit', function(req, res, next){
           .update(clientInfo)
           .then(function(response){
             console.log(response);
+            res.send(response);
           });
       });
     }
