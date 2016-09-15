@@ -260,6 +260,7 @@ router.post('/mediaPlans/clientEdit', function(req, res, next){
 
   knexCheckExists('media_plan', clientInfo)
   .then(function(response){
+    console.log(response);
     if(response.length !== 0){
       console.log('CLIENT ALREADY EXISTS!!!');
       res.send(false);
@@ -433,6 +434,8 @@ router.post('/mediaPlans/submitTactic', function(req, res) {
 
     } else if(response.length === 0 && tableName === 'listings'){
       info.communities = req.body.communities;
+      info.monthly_spend = req.body.tacticSpend * req.body.communities;
+      console.log(info);
 
       knexInsert(tableName, info)
         .then(function(response) {
@@ -460,8 +463,10 @@ router.post('/mediaPlans/submitTactic', function(req, res) {
           });
         });
     } else if(response.length === 0 && tableName === 'email'){
-      console.log("IIIIIIIIIIIIIIII", req.body);
+
       info.emails_per_year = req.body.emails_per_year;
+      info.monthly_spend = ((req.body.tacticSpend * req.body.emails_per_year)/12).toFixed(2);
+      console.log("IIIIIIIIIIIIIIII", info);
 
       knexInsert(tableName, info)
         .then(function(response) {
