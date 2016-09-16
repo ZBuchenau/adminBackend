@@ -556,7 +556,7 @@ router.post('/tactics/edit', function(req, res) {
     'media_plan_id': mediaPlanId,
   };
   delete tacticInfo.tacticType;
-  // console.log('NEW TACTIC INFO!!! ', tacticInfo);
+
 
   if(table === 'listings'){
     tacticInfo.monthly_spend = (tacticInfo.monthly_spend * tacticInfo.communities);
