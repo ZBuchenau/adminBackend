@@ -550,14 +550,6 @@ router.post('/tactics/edit', function(req, res) {
   var user = req.body.user_id;
   var mediaPlanId = req.body.media_plan_id;
   var table = req.body.tacticType;
-  // var tacticInfo = {
-  //   'user_id': user,
-  //   'media_plan_id': mediaPlanId,
-  //   'tactic_id': req.body.tactic_id,
-  //   'provider_name': req.body.provider_name,
-  //   'tactic_name': req.body.tactic_name,
-  //   'monthly_spend': req.body.monthly_spend
-  // };
   var tacticInfo = req.body;
   var mediaPlanIdentifiers = {
     'user_id': user,
