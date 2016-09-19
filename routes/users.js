@@ -586,6 +586,35 @@ router.post('/tactics/edit', function(req, res) {
           });
         });
       });
+  } else if(table === 'email'){
+    tacticInfo.monthly_spend = ((tacticInfo.tacticSpend * tacticInfo.emails_per_year)/12).toFixed(2);
+    delete tacticInfo.tacticSpend;
+    console.log(tacticInfo);
+    knexEdit(table, tacticInfo)
+      .then(function(response) {
+        console.log('RESPONSE!!!: ', response);
+        knexSelectTactics('ppc', mediaPlanIdentifiers).then(function(response) {
+          mediaPlanArr.push(response);
+        }).then(function(response) {
+          knexSelectTactics('cpm', mediaPlanIdentifiers).then(function(response) {
+            mediaPlanArr.push(response);
+          }).then(function(response) {
+            knexSelectTactics('listings', mediaPlanIdentifiers).then(function(response) {
+              mediaPlanArr.push(response);
+            }).then(function(response) {
+              knexSelectTactics('email', mediaPlanIdentifiers).then(function(response) {
+                mediaPlanArr.push(response);
+              }).then(function(response) {
+                knexSelectTactics('flat_fee', mediaPlanIdentifiers).then(function(response) {
+                  mediaPlanArr.push(response);
+                }).then(function(response) {
+                  res.send(mediaPlanArr);
+                });
+              });
+            });
+          });
+        });
+      });
   } else {
     knexEdit(table, tacticInfo)
       .then(function(response) {
