@@ -587,7 +587,7 @@ router.post('/tactics/edit', function(req, res) {
         });
       });
   } else if(table === 'email'){
-    tacticInfo.monthly_spend = ((tacticInfo.tacticSpend * tacticInfo.emails_per_year)/12).toFixed(2);
+    tacticInfo.monthly_spend = ((tacticInfo.tacticSpend * tacticInfo.emails_per_year)/12).toFixed(0);
     delete tacticInfo.tacticSpend;
     console.log(tacticInfo);
     knexEdit(table, tacticInfo)
