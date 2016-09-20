@@ -19,8 +19,7 @@ module.exports = {
   production: {
     client: 'pg',
     connection: {
-      database: process.env.DATABASE_URL + '/ssl=true',
-      port: 5433
+      database: process.env.DATABASE_URL + '/ssl=true'
     },
     pool: {
       min: 2,
