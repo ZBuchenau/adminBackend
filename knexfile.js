@@ -17,10 +17,10 @@ module.exports = {
   },
 
   production: {
-    client: 'pg',
+    client: 'postgresql',
     connection: {
       database: process.env.DATABASE_URL + '/ssl=true',
-      user:     process.env.USER_NAME,
+      user:     process.env.USERNAME,
       password: process.env.PASSWORD
     },
     pool: {
