@@ -10,17 +10,11 @@ module.exports = {
       database: process.env.DB_NAME,
       user: process.env.USER_NAME,
     },
-    pool: {
-      min: 2,
-      max: 10
-    }
   },
 
   production: {
     client: 'pg',
-    connection: {
-      database: process.env.DATABASE_URL + '/ssl=true'
-    },
+    connection: process.env.DATABASE_URL + '/ssl=true',
     pool: {
       min: 2,
       max: 10
