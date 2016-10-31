@@ -8,6 +8,13 @@ exports.up = function(knex, Promise) {
     table.string('tactic_name');
     table.decimal('monthly_spend');
     table.integer('emails_per_year');
+    table.boolean('io_requested');
+    table.boolean('io_received');
+    table.boolean('io_signed');
+    table.boolean('io_countersigned');
+    table.boolean('creative_approved');
+    table.boolean('creative_submitted');
+    table.boolean('creative_live');
   });
 };
 

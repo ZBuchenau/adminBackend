@@ -1,5 +1,5 @@
 var express = require('express');
-//var dotenv = require('dotenv').config();
+var dotenv = require('dotenv').config({silent: true});
 var session = require('express-session');
 var hh = require('http-https');
 var path = require('path');
@@ -19,10 +19,10 @@ var app = express();
 app.use(cors());
 
 app.use(expressJwt({
-  secret: process.env.JWT_SECRET
-})
+    secret: process.env.JWT_SECRET
+  })
   .unless({
-    path : ['/', '/users/signup', '/users/login']
+    path: ['/', '/users/signup', '/users/login']
   }));
 
 // view engine setup
@@ -32,7 +32,9 @@ app.use(expressJwt({
 //app.use(favicon(path.join(__dirname, 'public', 'favicon.ico')));
 app.use(logger('dev'));
 app.use(bodyParser.json());
-app.use(bodyParser.urlencoded({ extended: false }));
+app.use(bodyParser.urlencoded({
+  extended: false
+}));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 

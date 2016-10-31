@@ -5,7 +5,8 @@ exports.up = function(knex, Promise) {
     table.string('name');
     table.decimal('monthly_budget');
     table.string('year');
-  });
+    table.string('comments', 500);
+    });
 };
 
 exports.down = function(knex, Promise) {
