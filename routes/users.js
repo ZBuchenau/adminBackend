@@ -4,6 +4,7 @@
  var jwt = require('jsonwebtoken');
  var knex = require('../db/knex.js');
  var bcrypt = require('bcrypt');
+ var Q = require('q');
  // var async = require('async');
 
 
@@ -293,6 +294,12 @@
  });
 
 
+var addTacticType = function(obj, str){
+  for(var i = 0; i < obj.length; i++){
+    obj[i].tacticType = str;
+  }
+};
+
  router.post('/mediaPlans/allTactics', function(req, res, next) {
    // console.log(req.body.mediaPlanId);
 
@@ -307,18 +314,23 @@
 
 
    knexSelectTactics('ppc', info).then(function(response) {
+     addTacticType(response, 'ppc');
      mediaPlanObject.push(response);
    }).then(function() {
      knexSelectTactics('cpm', info).then(function(response) {
+       addTacticType(response, 'cpm');
        mediaPlanObject.push(response);
      }).then(function() {
        knexSelectTactics('listings', info).then(function(response) {
+         addTacticType(response, 'listings');
          mediaPlanObject.push(response);
        }).then(function() {
          knexSelectTactics('email', info).then(function(response) {
+           addTacticType(response, 'email');
            mediaPlanObject.push(response);
          }).then(function() {
            knexSelectTactics('flat_fee', info).then(function(response) {
+             addTacticType(response, 'flat_fee');
              mediaPlanObject.push(response);
            }).then(function(response) {
              console.log("+++++ MEDIA PLAN OBJECT +++++", mediaPlanObject);
@@ -650,6 +662,55 @@
        });
    }
 
+ });
+
+ var pullAllTactics = function(obj, arr){
+  var deferred = Q.defer();
+   knexSelectTactics('ppc', obj).then(function(response) {
+     arr.push(response);
+   }).then(function(response) {
+     knexSelectTactics('cpm', obj).then(function(response) {
+       arr.push(response);
+     }).then(function(response) {
+       knexSelectTactics('listings', obj).then(function(response) {
+         arr.push(response);
+       }).then(function(response) {
+         knexSelectTactics('email', obj).then(function(response) {
+           arr.push(response);
+         }).then(function(response) {
+           knexSelectTactics('flat_fee', obj).then(function(response) {
+             arr.push(response);
+            //  console.log("AAAAAAAARRRRRRRR!!!!!", arr);
+             deferred.resolve(arr);
+           });
+         });
+       });
+     });
+   });
+   return deferred.promise;
+ };
+
+ router.post('/tactics/checkedit', function(req, res) {
+  //  console.log(req.body);
+   var mediaPlanArr = [];
+   var user = req.body.user_id;
+   var mediaPlanId = req.body.media_plan_id;
+   var table = req.body.tacticType;
+   var tacticInfo = req.body;
+   var mediaPlanIdentifiers = {
+     'user_id': user,
+     'media_plan_id': mediaPlanId,
+   };
+   delete tacticInfo.tacticType;
+
+  knexEdit(table, tacticInfo)
+    .then(function(){
+      pullAllTactics(mediaPlanIdentifiers, mediaPlanArr)
+      .then(function(response){
+        console.log("***THIS IS WHAT WILL BE SENT TO THE FRONT END***", response);
+        res.send(response);
+      });
+    });
  });
 
  module.exports = router;
