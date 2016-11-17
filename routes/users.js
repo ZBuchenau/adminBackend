@@ -518,7 +518,6 @@ var addTacticType = function(obj, str){
  });
 
 
-
  router.post('/tactics/delete', function(req, res) {
   //  console.log("++++++++++++++++++++++++++++++++++", req.body);
    var mediaPlanArr = [];
@@ -711,4 +710,37 @@ var addTacticType = function(obj, str){
     });
  });
 
+ router.post('/tactics/checkcomments', function(req, res) {
+   var comments = req.body.checklist_comments;
+   var tacticInfo = req.body;
+   tacticInfo.user_id = req.user.id;
+   console.log(tacticInfo);
+   var mediaPlanIdentifiers = {
+     'user_id': req.user.id,
+     'media_plan_id': req.body.media_plan_id,
+   };
+   console.log('yoyoyoyoyoyoyoyoyo');
+   knex('media_plan')
+     .returning('*')
+     .where({
+       'user_id' : req.user.id,
+       'media_plan_id': req.body.media_plan_id
+     })
+     .update(tacticInfo)
+     .then(function(response){
+      //  console.log(response);
+       res.send(response);
+     });
+ });
+
+ router.post('/tactics/pullcomments', function(req, res) {
+   var planInfo = req.body;
+   planInfo.user_id = req.user.id;
+
+   knexSelectTactics('media_plan', planInfo)
+   .then(function(response){
+     console.log(response[0].checklist_comments);
+     res.send(response[0].checklist_comments);
+   });
+ });
  module.exports = router;
