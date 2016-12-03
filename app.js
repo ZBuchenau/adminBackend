@@ -1,5 +1,5 @@
 var express = require('express');
-// var dotenv = require('dotenv').config({silent: true});
+var dotenv = require('dotenv').config({silent: true});
 var session = require('express-session');
 var hh = require('http-https');
 var path = require('path');
