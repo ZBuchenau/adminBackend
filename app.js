@@ -9,7 +9,7 @@ var cookieParser = require('cookie-parser');
 var bodyParser = require('body-parser');
 var expressJwt = require('express-jwt');
 var knex = require('./db/knex.js');
-
+// route files
 var routes = require('./routes/index');
 var users = require('./routes/users');
 var clients = require('./routes/clients');

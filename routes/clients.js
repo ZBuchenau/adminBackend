@@ -9,8 +9,23 @@ var Q = require('q');
 // CUSTOM MIDDLEWARE
 var knexFunctions = require('../js/knexFunctions.js');
 
+router.get('/', function(req, res, next){
+  var userClients = [];
+  var user = req.user.id;
+  var client;
+  knex('clients')
+    .select('*')
+    .where({'user_fk' : user})
+    .then(function(response){
+      for(var i = 0; i < response.length; i++){
+        userClients.push(response[i]);
+      }
+      console.log("###", userClients);
+    });
+});
 
-router.post('/', function(req, res, next) {
+
+router.post('/add', function(req, res, next) {
   var c = req.body;
   var client = {
     'user_fk' : req.user.id,
@@ -36,23 +51,31 @@ router.post('/', function(req, res, next) {
   // console.log(client, contact, billing);
 
 
-  knexFunctions.insert('clients', client, '*')
-    .then(function(response){
-      contact.client_fk = response[0].id;
-      billing.client_fk = response[0].id;
-      c.client_id = response[0].id;
+  knexFunctions.checkExists('clients', client).then(function(response){
+    console.log(response.length);
+    if(response.length === 0){
+      knexFunctions.insert('clients', client, '*')
+        .then(function(response){
+          contact.client_fk = response[0].id;
+          billing.client_fk = response[0].id;
+          c.client_id = response[0].id;
 
-      knexFunctions.insert('client_contacts', contact, 'id').then(function(response){
-        knexFunctions.insert('client_billing', billing, 'id').then(function(response){
-          console.log(response);
-          if(response){
-            res.send(c);
-          } else {
-            res.send('DATABASE ERROR');
-          }
+          knexFunctions.insert('client_contacts', contact, 'id').then(function(response){
+            knexFunctions.insert('client_billing', billing, 'id').then(function(response){
+              console.log(response);
+              if(response){
+                res.send(c);
+              } else {
+                res.send('DATABASE ERROR');
+              }
+            });
+          });
         });
-      });
-    });
+    } else {
+      res.send(false);
+    }
+  });
+
 });
 
 module.exports = router;

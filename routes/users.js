@@ -185,6 +185,17 @@
 
  });
 
+ router.get('/getuser', function(req, res, next){
+   console.log('GETTING USER');
+   knex('users')
+    .select(['id', 'username'])
+    .where({'id' : req.user.id})
+    .then(function(response){
+      console.log(response);
+      res.send(response);
+    });
+ });
+
 
  // Checks to see if a parameter (in the form of {xyz: abc}) exists in the database.
  var knexCheckExists = function(tableName, paramToCheck) {
