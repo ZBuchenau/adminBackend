@@ -9,6 +9,10 @@ var Q = require('q');
 // CUSTOM MIDDLEWARE
 var knexFunctions = require('../js/knexFunctions.js');
 
+// ############################################################################
+// TODO: normalize the data to fit into the parent-child object structure
+// for the collapsible tree.
+
 router.get('/', function(req, res, next){
   var userClients = [];
   var user = req.user.id;
@@ -18,12 +22,16 @@ router.get('/', function(req, res, next){
     .where({'user_fk' : user})
     .then(function(response){
       for(var i = 0; i < response.length; i++){
-        userClients.push(response[i]);
+        userClients.push({
+          'name' : response[i].client_name,
+          'id' : response[i].id
+        });
       }
       console.log("###", userClients);
+      res.send(userClients);
     });
 });
-
+// ############################################################################
 
 router.post('/add', function(req, res, next) {
   var c = req.body;
