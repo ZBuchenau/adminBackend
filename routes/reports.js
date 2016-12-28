@@ -32,4 +32,18 @@ router.post('/', function(req, res, next) {
   });
 });
 
+router.get('/getreports', function(req, res, next){
+  var clientArray = [];
+
+  console.log('USER HAS HIT THE REPORTS/GET ENDPOINT!!!');
+  console.log(req.user.id);
+
+  knex.from('reports')
+    .innerJoin('clients', 'reports.client_fk', 'clients.id')
+    .then(function(response){
+      console.log(response);
+      res.send(response);
+    });
+});
+
 module.exports = router;
