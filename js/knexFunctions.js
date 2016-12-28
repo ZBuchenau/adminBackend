@@ -31,8 +31,16 @@ var select = function(tableName, obj) {
 };
 
 
+var edit = function(tableName, whereIdentifier, obj) {
+  return knex(tableName)
+    .returning('*')
+    .where(whereIdentifier)
+    .update(obj);
+};
+
 module.exports = {
   checkExists: checkExists,
   insert: insert,
-  select: select
+  select: select,
+  edit : edit
 };

@@ -37,13 +37,33 @@ router.get('/getreports', function(req, res, next){
 
   console.log('USER HAS HIT THE REPORTS/GET ENDPOINT!!!');
   console.log(req.user.id);
+  knexFunctions.select('reports', {'user_fk' : req.user.id})
+  .then(function(response){
+    console.log(response);
+    res.send(response);
+  });
+});
 
-  knex.from('reports')
-    .innerJoin('clients', 'reports.client_fk', 'clients.id')
-    .then(function(response){
-      console.log(response);
-      res.send(response);
-    });
+router.post('/update', function(req, res, next){
+  console.log('USER HAS HIT THE REPORTS/UPDATE ENDPOINT:::');
+  console.log(req.body);
+  var info = {
+    'user_fk' : req.user.id,
+    'id' : req.body.id
+  };
+
+  var updateObj = req.body;
+  delete updateObj.color;
+  console.log(':::::::::::::::::::::::::::::::::::::::::::::::::::::::');
+
+  console.log(info);
+
+  knexFunctions.edit('reports', info, updateObj)
+  .then(function(response){
+    console.log(response);
+    response[0].color = '';
+    res.send(response[0]);
+  });
 });
 
 module.exports = router;

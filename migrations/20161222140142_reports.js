@@ -8,6 +8,7 @@ exports.up = function(knex, Promise) {
     table.string('complete_by');
     table.string('employee');
     table.string('comments', 250);
+    table.boolean('part_1');
   });
 };
 
