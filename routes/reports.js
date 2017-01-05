@@ -32,7 +32,7 @@ router.post('/', function(req, res, next) {
   });
 });
 
-router.get('/getreports', function(req, res, next){
+router.get('/userreports', function(req, res, next){
   var clientArray = [];
 
   console.log('USER HAS HIT THE REPORTS/GET ENDPOINT!!!');
