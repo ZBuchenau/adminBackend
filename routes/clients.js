@@ -18,21 +18,7 @@ router.get('/', function(req, res, next) {
   var user = req.user.id;
   var client;
 
-  // knex('clients')
-  //   .select('*')
-  //   .where({'user_fk' : user})
-  //   .then(function(response){
-  //     for(var i = 0; i < response.length; i++){
-  //       userClients.push({
-  //         'name' : response[i].client_name,
-  //         'id' : response[i].id
-  //       });
-  //     }
-  //     console.log(response);
-  //     res.send(userClients);
-  //   });
-
-  knex.select('clients.id', 'clients.client_name', 'reports.id', 'reports.report_name')
+  knex.select('clients.client_name', 'reports.client_fk', 'reports.report_name', 'reports.id')
     .from('users')
     .innerJoin('clients', 'users.id', 'clients.user_fk')
     .innerJoin('reports', 'clients.id', 'reports.client_fk')
@@ -40,21 +26,6 @@ router.get('/', function(req, res, next) {
       console.log(response);
       res.send(response);
     });
-    // knex.select('clients.id', 'clients.client_name')
-    // .from('users')
-    // .leftJoin('clients', 'users.id', 'clients.user_fk')
-    // .then(function(response){
-    //   client = response;
-    //   for(var i = 0; i < client.length; i++){
-    //     console.log(client[i].id);
-    //
-    //
-    //   }
-    //   // console.log(client);
-    //   // return client;
-    //
-    // });
-
 });
 // ############################################################################
 
