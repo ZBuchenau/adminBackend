@@ -19,6 +19,7 @@
  };
 
  var knexEdit = function(tableName, obj) {
+   console.log("edit...");
    obj.provider_name = obj.provider_name.toUpperCase();
    return knex(tableName)
      .returning('*')
@@ -28,6 +29,7 @@
        'tactic_id': obj.tactic_id
      })
      .update(obj);
+
  };
 
  // ***** USERS *****
